@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EGA Video QA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #242424;
+    --border2: #2e2e2e;
+    --text: #f0ede8;
+    --text2: #888580;
+    --text3: #4a4845;
+    --accent: #e8f542;
+    --accent2: #c8d935;
+    --red: #ff4d4d;
+    --yellow: #ffb800;
+    --green: #4dff91;
+    --red-bg: rgba(255,77,77,0.08);
+    --yellow-bg: rgba(255,184,0,0.08);
+    --green-bg: rgba(77,255,145,0.08);
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: #0a0a0a;
+    letter-spacing: -0.5px;
+  }
+  .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .header-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    gap: 32px;
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 14px;
+    color: var(--text2);
+    font-family: var(--mono);
+    letter-spacing: 0.02em;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  /* ── INPUT CARD ── */
+  .input-card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(232,245,66,0.03);
+  }
+
+  .tab-panel { display: none; padding: 24px; }
+  .tab-panel.active { display: block; }
+
+  /* Drop zone */
+  .drop-zone {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(232,245,66,0.03);
+  }
+  .drop-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-icon {
+    width: 48px; height: 48px;
+    border: 1.5px solid var(--border2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 20px;
+    transition: border-color 0.2s;
+  }
+  .drop-zone:hover .drop-icon { border-color: var(--accent); }
+  .drop-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .drop-sub {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .drop-selected {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    margin-top: 12px;
+  }
+  .drop-selected.visible { display: flex; }
+  .file-icon { font-size: 20px; }
+  .file-name { font-family: var(--mono); font-size: 12px; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-size { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+
+  /* URL input */
+  .url-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text2);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .url-row {
+    display: flex;
+    gap: 8px;
+  }
+  .url-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .url-input:focus { border-color: var(--accent); }
+  .url-input::placeholder { color: var(--text3); }
+  .url-hints {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .url-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    letter-spacing: 0.04em;
+  }
+
+  /* Submit button */
+  .btn-run {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 16px;
+  }
+  .btn-run:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-run:active { transform: translateY(0); }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── PROGRESS ── */
+  #progress-block {
+    display: none;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+  }
+  #progress-block.visible { display: block; }
+
+  .progress-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0.35;
+    transition: opacity 0.3s;
+  }
+  .step:last-child { border-bottom: none; }
+  .step.active { opacity: 1; }
+  .step.done { opacity: 0.7; }
+  .step-dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.3s;
+  }
+  .step.active .step-dot {
+    border-color: var(--accent);
+    background: rgba(232,245,66,0.1);
+    color: var(--accent);
+  }
+  .step.done .step-dot {
+    border-color: var(--green);
+    background: rgba(77,255,145,0.1);
+    color: var(--green);
+  }
+  .step-info {}
+  .step-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .step-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .progress-bar-wrap {
+    margin-top: 20px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* ── REPORT ── */
+  #report-block {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #report-block.visible { display: flex; }
+
+  .report-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .report-meta {}
+  .report-filename {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    word-break: break-all;
+  }
+  .report-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    letter-spacing: 0.04em;
+  }
+  .verdict-badge {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .verdict-pass { background: var(--green-bg); color: var(--green); border: 1px solid rgba(77,255,145,0.2); }
+  .verdict-warn { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(255,184,0,0.2); }
+  .verdict-fail { background: var(--red-bg); color: var(--red); border: 1px solid rgba(255,77,77,0.2); }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-num.critical { color: var(--red); }
+  .stat-num.important { color: var(--yellow); }
+  .stat-num.minor { color: var(--green); }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Error sections */
+  .error-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .error-section-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-red { background: var(--red); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-green { background: var(--green); }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .section-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .error-list {
+    list-style: none;
+  }
+  .error-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .error-item:last-child { border-bottom: none; }
+  .error-tc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .error-body {}
+  .error-cat {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    margin-bottom: 3px;
+  }
+  .error-desc {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+  .error-quote {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    background: var(--surface2);
+    border-left: 2px solid var(--border2);
+    padding: 4px 10px;
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+  }
+
+  /* Transcript */
+  .transcript-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .transcript-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .transcript-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .transcript-lang {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .transcript-body {
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text2);
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+
+  /* Summary */
+  .summary-block {
+    background: rgba(232,245,66,0.04);
+    border: 1px solid rgba(232,245,66,0.15);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    font-family: var(--mono);
+  }
+  .summary-block strong { color: var(--accent); font-weight: 500; }
+
+  /* Actions */
+  .actions-row {
+    display: flex;
+    gap: 10px;
+  }
+  .btn-secondary {
+    flex: 1;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .btn-secondary:hover { border-color: var(--border2); color: var(--text); }
+  .btn-primary {
+    flex: 1;
+    padding: 12px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #0a0a0a;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+
+  /* ── ERROR MESSAGE ── */
+  .error-toast {
+    display: none;
+    width: 100%;
+    background: var(--red-bg);
+    border: 1px solid rgba(255,77,77,0.25);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--red);
+    line-height: 1.6;
+  }
+  .error-toast.visible { display: block; }
+
+  /* Footer */
+  footer {
+    padding: 20px 32px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">QA</div>
+    <div>
+      <div class="logo-text">EGA Video QA</div>
+      <div class="logo-sub">Elite Growth Accelerator</div>
+    </div>
+  </div>
+  <div class="header-badge">v1.0</div>
+</header>
+
+<main>
+
+  <div class="hero">
+    <h1>Перевір відео<br><span>перед здачею</span></h1>
+    <p>Граматика з аудіо · Чорні кадри · Кліпінг · Слова-паразити</p>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="input-card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('file')">📁 Файл з комп'ютера</button>
+      <button class="tab" onclick="switchTab('url')">🔗 Посилання (Frame.io / Drive)</button>
+    </div>
+
+    <!-- File tab -->
+    <div class="tab-panel active" id="tab-file">
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept="video/*,.mp4,.mov,.avi,.mkv,.webm">
+        <div class="drop-icon">🎬</div>
+        <div class="drop-title">Перетягни відео або натисни</div>
+        <div class="drop-sub">MP4, MOV, AVI, MKV, WEBM · до 500MB</div>
+      </div>
+      <div class="drop-selected" id="drop-selected">
+        <span class="file-icon">🎬</span>
+        <span class="file-name" id="file-name-display">—</span>
+        <span class="file-size" id="file-size-display">—</span>
+      </div>
+      <button class="btn-run" id="btn-run-file" onclick="runQA('file')" disabled>
+        Запустити QA →
+      </button>
+    </div>
+
+    <!-- URL tab -->
+    <div class="tab-panel" id="tab-url">
+      <label class="url-label">Посилання на відео</label>
+      <div class="url-row">
+        <input type="url" class="url-input" id="url-input"
+          placeholder="https://app.frame.io/reviews/... або Google Drive"
+          oninput="checkUrlReady()">
+      </div>
+      <div class="url-hints">
+        <span class="url-hint">✓ Frame.io share link</span>
+        <span class="url-hint">✓ Google Drive (відкритий)</span>
+        <span class="url-hint">✓ Пряме .mp4/.mov</span>
+      </div>
+      <button class="btn-run" id="btn-run-url" onclick="runQA('url')" disabled>
+        Запустити QA →
+      </button>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-toast" id="error-toast"></div>
+
+  <!-- PROGRESS -->
+  <div id="progress-block">
+    <div class="progress-header">
+      <div class="spinner"></div>
+      <div class="progress-title" id="progress-title">Аналізую відео...</div>
+    </div>
+    <div class="steps">
+      <div class="step" id="step-1">
+        <div class="step-dot">1</div>
+        <div class="step-info">
+          <div class="step-label">Завантаження відео</div>
+          <div class="step-desc">Отримуємо файл та витягуємо аудіо</div>
+        </div>
+      </div>
+      <div class="step" id="step-2">
+        <div class="step-dot">2</div>
+        <div class="step-info">
+          <div class="step-label">Аналіз через Claude AI</div>
+          <div class="step-desc">Транскрипція + граматика + якість звуку</div>
+        </div>
+      </div>
+      <div class="step" id="step-3">
+        <div class="step-dot">3</div>
+        <div class="step-info">
+          <div class="step-label">Формування звіту</div>
+          <div class="step-desc">Структурований список помилок з таймкодами</div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div id="report-block">
+    <!-- Filled by JS -->
+  </div>
+
+</main>
+
+<footer>
+  <span>EGA — Elite Growth Accelerator</span>
+  <span>Powered by Claude claude-sonnet-4-20250514</span>
+</footer>
+
+<script>
+// ── STATE ──
+let selectedFile = null;
+let currentTab = 'file';
+
+// ── TABS ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) =>
+    t.classList.toggle('active', (i === 0 && tab === 'file') || (i === 1 && tab === 'url'))
+  );
+  document.getElementById('tab-file').classList.toggle('active', tab === 'file');
+  document.getElementById('tab-url').classList.toggle('active', tab === 'url');
+}
+
+// ── FILE INPUT ──
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) selectFile(e.target.files[0]);
+});
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) selectFile(e.dataTransfer.files[0]);
+});
+
+function selectFile(file) {
+  selectedFile = file;
+  document.getElementById('file-name-display').textContent = file.name;
+  document.getElementById('file-size-display').textContent = formatSize(file.size);
+  document.getElementById('drop-selected').classList.add('visible');
+  document.getElementById('btn-run-file').disabled = false;
+}
+
+function formatSize(bytes) {
+  if (bytes > 1024 * 1024 * 1024) return (bytes / 1024 / 1024 / 1024).toFixed(1) + ' GB';
+  if (bytes > 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  return (bytes / 1024).toFixed(0) + ' KB';
+}
+
+// ── URL INPUT ──
+function checkUrlReady() {
+  const val = document.getElementById('url-input').value.trim();
+  document.getElementById('btn-run-url').disabled = !val.startsWith('http');
+}
+
+// ── PROGRESS ──
+function setStep(n) {
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById(`step-${i}`);
+    el.classList.remove('active', 'done');
+    if (i < n) el.classList.add('done'), el.querySelector('.step-dot').textContent = '✓';
+    else if (i === n) el.classList.add('active');
+    else el.querySelector('.step-dot').textContent = i;
+  });
+  const pct = { 1: 15, 2: 55, 3: 90 }[n] || 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function showProgress() {
+  document.getElementById('progress-block').classList.add('visible');
+  document.getElementById('report-block').classList.remove('visible');
+  document.getElementById('error-toast').classList.remove('visible');
+  setStep(1);
+}
+
+function hideProgress() {
+  document.getElementById('progress-bar').style.width = '100%';
+  setTimeout(() => document.getElementById('progress-block').classList.remove('visible'), 400);
+}
+
+function showError(msg) {
+  hideProgress();
+  const el = document.getElementById('error-toast');
+  el.textContent = '❌ ' + msg;
+  el.classList.add('visible');
+}
+
+// ── MAIN QA FLOW ──
+async function runQA(mode) {
+  showProgress();
+  document.getElementById('report-block').innerHTML = '';
+
+  try {
+    let audioBase64, videoMeta, sourceName;
+
+    // ── STEP 1: отримати аудіо ──
+    setStep(1);
+
+    if (mode === 'file') {
+      if (!selectedFile) throw new Error('Файл не вибрано');
+      sourceName = selectedFile.name;
+
+      // Читаємо файл
+      const fileBuffer = await readFileAsArrayBuffer(selectedFile);
+      const fileBase64 = arrayBufferToBase64(fileBuffer);
+
+      // Відправляємо на сервер для витягування аудіо
+      const extractRes = await fetch('/api/extract-audio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileBase64, filename: selectedFile.name }),
+      });
+      if (!extractRes.ok) {
+        const err = await extractRes.json();
+        throw new Error(err.error || 'Помилка при витягуванні аудіо');
+      }
+      const extracted = await extractRes.json();
+      audioBase64 = extracted.audioBase64;
+      videoMeta = extracted.videoMeta;
+
+    } else {
+      const url = document.getElementById('url-input').value.trim();
+      if (!url) throw new Error('Введи посилання на відео');
+      sourceName = url;
+
+      const extractRes = await fetch('/api/extract-audio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      if (!extractRes.ok) {
+        const err = await extractRes.json();
+        throw new Error(err.error || 'Не вдалось завантажити відео');
+      }
+      const extracted = await extractRes.json();
+      audioBase64 = extracted.audioBase64;
+      videoMeta = extracted.videoMeta;
+    }
+
+    // ── STEP 2: аналіз Claude ──
+    setStep(2);
+
+    const analyzeRes = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        audioBase64,
+        videoMeta,
+        sourceUrl: mode === 'url' ? document.getElementById('url-input').value.trim() : null,
+      }),
+    });
+    if (!analyzeRes.ok) {
+      const err = await analyzeRes.json();
+      throw new Error(err.error || 'Помилка аналізу Claude');
+    }
+    const { analysis } = await analyzeRes.json();
+
+    // ── STEP 3: звіт ──
+    setStep(3);
+    await sleep(500);
+
+    hideProgress();
+    renderReport(analysis, videoMeta, sourceName);
+
+  } catch (err) {
+    showError(err.message);
+  }
+}
+
+// ── RENDER REPORT ──
+function renderReport(analysis, meta, sourceName) {
+  const { errors = {}, verdict, summary, transcript, language, stats } = analysis;
+  const critical = errors.critical || [];
+  const important = errors.important || [];
+  const minor = errors.minor || [];
+
+  const verdictLabel = { pass: '✅ ГОТОВО', warn: '⚠️ ВИПРАВИТИ', fail: '❌ ПОТРЕБУЄ ПРАВОК' }[verdict] || '—';
+  const verdictClass = { pass: 'verdict-pass', warn: 'verdict-warn', fail: 'verdict-fail' }[verdict] || 'verdict-warn';
+
+  const langLabel = { en: '🇬🇧 EN', uk: '🇺🇦 UK', ru: '🇷🇺 RU' }[language] || (language || '').toUpperCase();
+  const shortName = sourceName.split('/').pop()?.split('?')[0] || sourceName;
+
+  let html = `
+    <div class="report-header">
+      <div class="report-meta">
+        <div class="report-filename">${esc(shortName)}</div>
+        <div class="report-tags">
+          ${meta?.durationStr && meta.durationStr !== '??:??' ? `<span class="tag">⏱ ${esc(meta.durationStr)}</span>` : ''}
+          ${meta?.resolution && meta.resolution !== 'невідомо' ? `<span class="tag">${esc(meta.resolution)}</span>` : ''}
+          ${meta?.fps ? `<span class="tag">${meta.fps}fps</span>` : ''}
+          ${meta?.orientation ? `<span class="tag">${esc(meta.orientation)}</span>` : ''}
+          ${langLabel ? `<span class="tag">${langLabel}</span>` : ''}
+        </div>
+      </div>
+      <div class="verdict-badge ${verdictClass}">${verdictLabel}</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num critical">${critical.length}</div>
+        <div class="stat-label">Критичних</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num important">${important.length}</div>
+        <div class="stat-label">Важливих</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num minor">${minor.length}</div>
+        <div class="stat-label">Незначних</div>
+      </div>
+    </div>
+  `;
+
+  // Помилки по секціях
+  if (critical.length > 0) {
+    html += renderErrorSection('critical', '🔴 Критичні — виправити обов\'язково', critical, 'dot-red');
+  }
+  if (important.length > 0) {
+    html += renderErrorSection('important', '🟡 Важливі — виправити бажано', important, 'dot-yellow');
+  }
+  if (minor.length > 0) {
+    html += renderErrorSection('minor', '🟢 Незначні — на розсуд монтажера', minor, 'dot-green');
+  }
+  if (critical.length + important.length + minor.length === 0) {
+    html += `<div class="summary-block"><strong>✅ Помилок не знайдено.</strong> Відео пройшло QA — можна здавати клієнту.</div>`;
+  }
+
+  if (summary) {
+    html += `<div class="summary-block">💬 ${esc(summary)}</div>`;
+  }
+
+  // Транскрипт
+  if (transcript && transcript.length > 20) {
+    html += `
+      <div class="transcript-block">
+        <div class="transcript-header">
+          <div class="transcript-title">Транскрипт</div>
+          <div class="transcript-lang">${langLabel}</div>
+        </div>
+        <div class="transcript-body">${esc(transcript)}</div>
+      </div>
+    `;
+  }
+
+  // Кнопки
+  html += `
+    <div class="actions-row">
+      <button class="btn-secondary" onclick="copyReport()">📋 Скопіювати звіт</button>
+      <button class="btn-primary" onclick="resetForm()">+ Нове відео</button>
+    </div>
+  `;
+
+  const block = document.getElementById('report-block');
+  block.innerHTML = html;
+  block.classList.add('visible');
+  block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Зберігаємо для копіювання
+  window._lastAnalysis = analysis;
+  window._lastMeta = meta;
+  window._lastSource = sourceName;
+}
+
+function renderErrorSection(type, title, errors, dotClass) {
+  const items = errors.map(e => `
+    <li class="error-item">
+      ${e.timecode ? `<span class="error-tc">${esc(e.timecode)}</span>` : ''}
+      <div class="error-body">
+        ${e.category ? `<div class="error-cat">${esc(e.category)}</div>` : ''}
+        <div class="error-desc">${esc(e.description || '')}</div>
+        ${e.quote ? `<div class="error-quote">"${esc(e.quote)}"</div>` : ''}
+      </div>
+    </li>
+  `).join('');
+
+  return `
+    <div class="error-section">
+      <div class="error-section-header">
+        <span class="section-dot ${dotClass}"></span>
+        <span class="section-title">${title}</span>
+        <span class="section-count">${errors.length}</span>
+      </div>
+      <ul class="error-list">${items}</ul>
+    </div>
+  `;
+}
+
+// ── COPY REPORT ──
+function copyReport() {
+  const a = window._lastAnalysis;
+  if (!a) return;
+  const { errors = {}, verdict, summary, language } = a;
+  const critical = errors.critical || [];
+  const important = errors.important || [];
+  const minor = errors.minor || [];
+
+  let text = `📋 QA ЗВІТ — ${window._lastSource || ''}\n`;
+  text += `📅 ${new Date().toLocaleString('uk-UA')}\n`;
+  if (window._lastMeta?.durationStr) text += `⏱ ${window._lastMeta.durationStr}\n`;
+  text += `\n`;
+
+  if (critical.length) {
+    text += `🔴 КРИТИЧНІ (${critical.length}):\n`;
+    critical.forEach(e => text += `  [${e.timecode || '??:??'}] ${e.description}${e.quote ? ` — "${e.quote}"` : ''}\n`);
+    text += '\n';
+  }
+  if (important.length) {
+    text += `🟡 ВАЖЛИВІ (${important.length}):\n`;
+    important.forEach(e => text += `  [${e.timecode || '??:??'}] ${e.description}${e.quote ? ` — "${e.quote}"` : ''}\n`);
+    text += '\n';
+  }
+  if (minor.length) {
+    text += `🟢 НЕЗНАЧНІ (${minor.length}):\n`;
+    minor.forEach(e => text += `  [${e.timecode || '??:??'}] ${e.description}\n`);
+    text += '\n';
+  }
+
+  const vl = { pass: '✅ ГОТОВО', warn: '⚠️ ВИПРАВИТИ', fail: '❌ ПОТРЕБУЄ ПРАВОК' }[verdict] || '';
+  text += `СТАТУС: ${vl}\n`;
+  if (summary) text += `${summary}\n`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-secondary');
+    if (btn) { btn.textContent = '✅ Скопійовано!'; setTimeout(() => btn.textContent = '📋 Скопіювати звіт', 2000); }
+  });
+}
+
+// ── RESET ──
+function resetForm() {
+  selectedFile = null;
+  document.getElementById('file-name-display').textContent = '—';
+  document.getElementById('file-size-display').textContent = '—';
+  document.getElementById('drop-selected').classList.remove('visible');
+  document.getElementById('btn-run-file').disabled = true;
+  document.getElementById('url-input').value = '';
+  document.getElementById('btn-run-url').disabled = true;
+  document.getElementById('report-block').classList.remove('visible');
+  document.getElementById('report-block').innerHTML = '';
+  document.getElementById('error-toast').classList.remove('visible');
+  fileInput.value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── UTILS ──
+function readFileAsArrayBuffer(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = e => res(e.target.result);
+    reader.onerror = rej;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function arrayBufferToBase64(buf) {
+  let binary = '';
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

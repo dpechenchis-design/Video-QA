@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "functions": {
+    "api/analyze.js": { "maxDuration": 300 },
+    "api/extract-audio.js": { "maxDuration": 120 }
+  }
+}
