@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "outputDirectory": "public",
   "functions": {
     "api/analyze.js": { "maxDuration": 300 },
     "api/extract-audio.js": { "maxDuration": 120 }
